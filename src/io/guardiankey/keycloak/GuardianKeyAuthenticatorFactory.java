@@ -127,6 +127,22 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property11.setHelpText("Only send events to GuardianKey? If you choose no, the module may block risky auth attempts, depending on your policy set-up in the GuardianKey's panel.");
         property11.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         property11.setDefaultValue(true);
+
+        ProviderConfigProperty property12;
+        property12 = new ProviderConfigProperty();
+        property12.setName("guardiankey.anonkey");
+        property12.setLabel("Anonymization KEY");
+        property12.setHelpText("Anonymization KEY if used.");
+        property12.setDefaultValue("");
+        property12.setType(ProviderConfigProperty.STRING_TYPE);
+        
+        ProviderConfigProperty property13;
+        property13 = new ProviderConfigProperty();
+        property13.setName("guardiankey.anoniv");
+        property13.setLabel("Anonymization IV");
+        property13.setHelpText("Anonymization IV if used.");
+        property13.setDefaultValue("");
+        property13.setType(ProviderConfigProperty.STRING_TYPE);
         
         configProperties.add(property1);
         configProperties.add(property2);
@@ -140,6 +156,8 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         configProperties.add(property9);
         configProperties.add(property10);
         configProperties.add(property11);
+        configProperties.add(property12);
+        configProperties.add(property13);
     }
     
 	

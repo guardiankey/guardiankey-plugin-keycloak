@@ -27,7 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
+//import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
@@ -36,7 +36,7 @@ import org.keycloak.models.KeycloakSession;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import org.apache.http.impl.client.CloseableHttpClient;
 
 
 public class GuardianKeyAPI {
@@ -73,7 +73,7 @@ public class GuardianKeyAPI {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String,String> postMsg(HttpClient HTTPclient, String URI, String msg) {
+	private Map<String,String> postMsg(CloseableHttpClient HTTPclient, String URI, String msg) {
 		try {
 			HttpPost post = new HttpPost(URI);
 			post.setHeader("Content-type", "application/json");
@@ -114,7 +114,7 @@ public class GuardianKeyAPI {
 	  private Map<String,String> postMsgTimeout(KeycloakSession session, String URI, String msg) {
 
 		  HttpClientProvider provider = session.getProvider(HttpClientProvider.class);
-		  HttpClient client = provider.getHttpClient();
+		  CloseableHttpClient client = provider.getHttpClient();
 		  Callable<Map<String,String>> taskToSubmit = new Callable<Map<String,String>>() {
 			  @Override
 			  public Map<String,String> call() {
@@ -126,7 +126,7 @@ public class GuardianKeyAPI {
 		  executor.shutdown(); // This does not cancel the already-scheduled task.
 		  Map<String,String> o=null;
 		  try {
-			  o= future.get(4, TimeUnit.SECONDS);
+			  o= future.get(5, TimeUnit.SECONDS);
 		  } catch (Exception e) {	}
 
 		  if (!executor.isTerminated())

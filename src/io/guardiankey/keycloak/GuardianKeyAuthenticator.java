@@ -57,7 +57,8 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 			config = context.getAuthenticatorConfig().getConfig();
 			session = context.getSession();
 			
-			if(context.getUser()==null) {
+			if(context.getUser()==null || context.getUser().getUsername() == null) {
+				context.success();
 				return;
 			}
 			
@@ -200,9 +201,11 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
                     	username=e.getValue();
                  }
             }
-			
-			System.out.print("Sending failed attempt to GuardianKey.\n");
-			GKAPI.sendEvent(session,username,"",failed,"Authentication", clientIP,userAgent);
+			if(username!=null)
+			{
+				System.out.print("Sending failed attempt to GuardianKey.\n");
+				GKAPI.sendEvent(session,username,"",failed,"Authentication", clientIP,userAgent);
+			}
 		}
 	}
 

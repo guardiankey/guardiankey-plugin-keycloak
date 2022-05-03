@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>guardiankey-keycloak-plugin</groupId>
 	<artifactId>guardiankey-keycloak-plugin</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -23,20 +23,20 @@
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-core</artifactId>
 			<scope>provided</scope>
-			<version>4.8.3.Final</version>
+			<version>18.0.0</version>
 		</dependency>
 		
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-themes</artifactId>
-            <version>4.8.3.Final</version>
+            <version>18.0.0</version>
         </dependency>
 
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-server-spi-private</artifactId>
 			<scope>provided</scope>
-			<version>4.8.3.Final</version>
+			<version>18.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -50,7 +50,7 @@
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-server-spi</artifactId>
 			<scope>provided</scope>
-			<version>4.8.3.Final</version>
+			<version>18.0.0</version>
 		</dependency>
 
 		<dependency>

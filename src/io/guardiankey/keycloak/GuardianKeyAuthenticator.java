@@ -64,7 +64,7 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 			
 			GKAPI.setConfig(config);
 			
-			username=context.getUser().getUsername();
+			username= context.getUser().getUsername();
 			systemURL = context.getRefreshExecutionUrl().getHost().toString();
 		} catch (Exception e) {
 			context.success();
@@ -83,7 +83,7 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 		
 		boolean failed = false;
 		
-		if(context.getUser().getEmail()!=null) {
+		if(context.getUser().getEmail()!=null && (config.get("guardiankey.anonkey")== null || config.get("guardiankey.anonkey").equals(""))) {
 			email = context.getUser().getEmail();
 		}else {
 			email ="";
@@ -96,11 +96,16 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 			Map<String,String> checkReturn = GKAPI.checkAccess(session,username,email,failed,"Authentication", clientIP,userAgent);
         	
 			if(checkReturn.get("response").equals("BLOCK")) {
-                 Response challenge = context.form()
-							                .setError("Attempt blocked by GuardianKey.")
-							                .createForm("error.ftl");
-				 context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
-				 return;
+				sendEmail(username,email,context,clientIP,systemURL,checkReturn);
+				if(false) { //config.get("guardiankey.stealthblocking").equals("true")) {
+					context.failure(AuthenticationFlowError.INVALID_CREDENTIALS);
+				}else {
+	                 Response challenge = context.form()
+								                .setError("Attempt blocked by GuardianKey. Check your e-mails.")
+								                .createForm("error.ftl");
+					 context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
+				}
+			    return;
 			}else if(checkReturn.get("response").equals("NOTIFY") || checkReturn.get("response").equals("HARD_NOTIFY")) {
 				sendEmail(username,email,context,clientIP,systemURL,checkReturn);
 			}

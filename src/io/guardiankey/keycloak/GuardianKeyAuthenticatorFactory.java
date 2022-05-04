@@ -144,6 +144,14 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         property13.setDefaultValue("");
         property13.setType(ProviderConfigProperty.STRING_TYPE);
         
+        ProviderConfigProperty property14;
+        property14 = new ProviderConfigProperty();
+        property14.setName("guardiankey.stealthblocking");
+        property14.setLabel("Stealth blocking");
+        property14.setHelpText("If yes, GuardianKey blocking will appear is invalid credentials.");
+        property14.setDefaultValue(true);
+        property14.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+        
         configProperties.add(property1);
         configProperties.add(property2);
         configProperties.add(property3);
@@ -158,6 +166,7 @@ public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, Co
         configProperties.add(property11);
         configProperties.add(property12);
         configProperties.add(property13);
+//        configProperties.add(property14);
     }
     
 	

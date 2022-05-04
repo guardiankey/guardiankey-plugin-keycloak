@@ -45,6 +45,8 @@ public class GuardianKeyAPI {
 	private String APIURI="https://api.guardiankey.io";
 	private byte[] key;
 	private byte[] iv;
+	private byte[] anonkey;
+	private byte[] anoniv;
 	private String orgId ="";
 	private String service ="KeyCloak";
 	private String agentId ="KeyCloakServer";
@@ -70,6 +72,10 @@ public class GuardianKeyAPI {
 			this.key         = Base64.getDecoder().decode(config.get("guardiankey.key"));
 		if(config.get("guardiankey.iv")!=null)
 			this.iv          = Base64.getDecoder().decode(config.get("guardiankey.iv"));
+		if(config.get("guardiankey.anonkey")!=null && !config.get("guardiankey.anonkey").equals(""))
+			this.anonkey         = Base64.getDecoder().decode(config.get("guardiankey.anonkey"));
+		if(config.get("guardiankey.anoniv")!=null && !config.get("guardiankey.anoniv").equals(""))
+			this.anoniv          = Base64.getDecoder().decode(config.get("guardiankey.anoniv"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -136,8 +142,6 @@ public class GuardianKeyAPI {
 	}
 	
 	private byte[] encrypt(String txtMsg) {
-		
-		
         IvParameterSpec iv = new IvParameterSpec(this.iv);
         SecretKeySpec skeySpec = new SecretKeySpec(this.key, "AES");
         
@@ -165,6 +169,20 @@ public class GuardianKeyAPI {
 		return null;
 	}
 	
+	public String anonymizeUsername(String username) {
+		if(this.anonkey==null) return username;
+		try {
+	        IvParameterSpec iv = new IvParameterSpec(this.anoniv);
+	        SecretKeySpec skeySpec = new SecretKeySpec(this.anonkey, "AES");
+	        Cipher cipher;
+			cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+	        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+	        return Base64.getEncoder().encodeToString(cipher.doFinal(username.getBytes("UTF-8")));
+		} catch (Exception e) {
+			return username;
+		}
+	}
+	
 	public String createMsg(String username, String email, boolean loginFailed, String eventType, String clientIP, String userAgent) {
 		
 		Long genTime = System.currentTimeMillis()/1000;
@@ -187,7 +205,7 @@ public class GuardianKeyAPI {
 		}else {
 			sjson.put("clientReverse","");
 		}
-		sjson.put("userName",username);
+		sjson.put("userName",this.anonymizeUsername(username));
 		sjson.put("authMethod","");
 		sjson.put("loginFailed",(loginFailed)? "1" : "0");
 		sjson.put("userAgent",userAgent);

@@ -1,5 +1,4 @@
-
-* Tested from version 4.8.3 up to 7.0.1
+**Tested up to 18.0.0**
 
 # 1. What is GuardianKey
 
@@ -38,6 +37,36 @@ https://guardiankey.io/panel-documentation/#accessing-for-the-first-time
 
 # 3. Deploying the extension in KeyCloak
 
+## Instructions to deploying using Keycloak with Quarkus (most recents versions)
+To deploy the extension, you must:
+
+1. Download and move the `guardiankey.jar` file to the `providers` directory of your Keycloak installation and running 'build', for example:
+
+```
+$ wget https://github.com/guardiankey/guardiankey-plugin-keycloak/releases/tag/v0.9.3-beta
+$ cp guardiankey.jar /opt/keycloak-18.0.0/providers/
+$ cd /opt/keycloak-18.0.0/
+$ ./bin/kc.sh build
+```
+
+2. Copy the e-mail template to your Keycloak theme, for example:
+
+```
+$ cd /opt/keycloak-18.0.0
+$ cp ./lib/lib/main/org.keycloak.keycloak-themes-18.0.0.jar /tmp
+$ mkdir /tmp/a
+$ cd /tmp/a
+$ unzip /tmp/org.keycloak.keycloak-themes-18.0.0.jar 
+$ cp base /opt/keycloak-18.0.0/themes/custom
+$ cd /opt/keycloak-18.0.0/themes/custom/email
+$ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
+
+```
+3. Restart Keycloak service
+
+(go to item 4)
+
+## Instructions to deploying using Keycloak with WildFly (old versions)
 To deploy the extension, you must:
 
 1. Download and move the `guardiankey.jar` file to the `deployments` directory of your KeyCloak installation, for example:
@@ -48,6 +77,19 @@ $ cp guardiankey.jar /opt/jboss/keycloak/standalone/deployments/
 ```
 
 2. Copy the e-mail template into the `email` directory of the theme used by your installation, for example:
+
+```
+$ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
+$ cp guardiankey-security_alert.ftl /opt/jboss/keycloak/themes/keycloak/email/
+```
+
+It is not needed to restart services, JBoss will automatically deploy the files. 
+In some seconds, the file `guardiankey.jar.deployed` should appear in the `deployments` directory. 
+If you have a problem in this phase, it will appear a file named `guardiankey.jar.failed`. 
+In this case, you can check its contents to have a clue about the problem.
+
+
+3. Copy the e-mail template into the `email` directory of the theme used by your installation, for example:
 
 ```
 $ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
@@ -70,6 +112,9 @@ If no, in KeyCloak admin interface, go to "Realm settings", e-mail tab, and prov
 For example, like in the screenshot presented below.
 
 ![Configuring the e-mail settings in KeyCloak](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/1-email.png)
+
+### 4.1.2 - (just newer versions) Enable e-mail in Realm settings -> Themes, select "custom" theme.
+
 
 ## 4.2. Creating a browser flow
 

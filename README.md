@@ -59,7 +59,7 @@ $ cd /tmp/a
 $ unzip /tmp/org.keycloak.keycloak-themes-18.0.0.jar 
 $ cp base /opt/keycloak-18.0.0/themes/custom
 $ cd /opt/keycloak-18.0.0/themes/custom/email
-$ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
+$ wget https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
 
 ```
 3. Restart Keycloak service
@@ -72,14 +72,14 @@ To deploy the extension, you must:
 1. Download and move the `guardiankey.jar` file to the `deployments` directory of your KeyCloak installation, for example:
 
 ```
-$ wget https://github.com/pauloangelo/guardiankey-plugin-keycloak/releases/download/v0.9.1-beta/guardiankey.jar
+$ wget https://github.com/guardiankey/guardiankey-plugin-keycloak/releases/download/v0.9.1-beta/guardiankey.jar
 $ cp guardiankey.jar /opt/jboss/keycloak/standalone/deployments/
 ```
 
 2. Copy the e-mail template into the `email` directory of the theme used by your installation, for example:
 
 ```
-$ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
+$ wget https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
 $ cp guardiankey-security_alert.ftl /opt/jboss/keycloak/themes/keycloak/email/
 ```
 
@@ -92,7 +92,7 @@ In this case, you can check its contents to have a clue about the problem.
 3. Copy the e-mail template into the `email` directory of the theme used by your installation, for example:
 
 ```
-$ wget https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
+$ wget https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
 $ cp guardiankey-security_alert.ftl /opt/jboss/keycloak/themes/keycloak/email/
 ```
 
@@ -111,7 +111,7 @@ Probably, you already did this in order to use KeyCloak.
 If no, in KeyCloak admin interface, go to "Realm settings", e-mail tab, and provide an SMTP server for e-mail sending.
 For example, like in the screenshot presented below.
 
-![Configuring the e-mail settings in KeyCloak](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/1-email.png)
+![Configuring the e-mail settings in KeyCloak](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/1-email.png)
 
 ### 4.1.2 - (just newer versions) Enable e-mail in Realm settings -> Themes, select "custom" theme.
 
@@ -126,13 +126,13 @@ In KeyCloak, go to Authentication. In the tab `Flows`, select the `Browser` flow
 click in the button `copy`, provide a new name, and confirm. 
 Screen presented in the image below.
 
-![Copy the Browser flow](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/2-copy_flow.png)
+![Copy the Browser flow](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/2-copy_flow.png)
 
 Now, select the newly created browser flow, click in the button `Add execution`, select the provider **GuardianKey Authenticator** and save.
 
 The GuardianKey Authenticator must be set-up to **REQUIRED** and should be last in the list, such as in the image below.
 
-![Adding the GuardianKey Authenticator provider](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/3-add_provider_to_flow.png)
+![Adding the GuardianKey Authenticator provider](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/3-add_provider_to_flow.png)
 
 
 ## 4.3. Configuring the GuardianKey extension
@@ -146,7 +146,7 @@ It can be found when viewing an Authgroup, `Deploy information` tab, such as in 
 To configure the GuardianKey extension, you should go to the created flow and click in the `Config` link that is inside the `Actions` 
 menu of the `GuardianKey Authenticator` line in the flow. There will open a form like the one in the image below.
 
-![Configuring the GuardianKey extension](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/4-configure_extension.png)
+![Configuring the GuardianKey extension](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/4-configure_extension.png)
 
 The Organization ID, AuthGroup ID, Key and IV are deployment information that can be found at GuardianKey's panel.
 The other fields are described below.
@@ -164,7 +164,7 @@ You must set the GuardianKey flow as the `Browser flow` for your realm.
 In KeyCloak, go to Authentication and tab `Bindings`. Set the created flow for GuardianKey as
 the `Browser flow` and save. See image below.
 
-![Setting the GuardianKey flow as the Browser flow](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/5-set_GK_flow_as.png)
+![Setting the GuardianKey flow as the Browser flow](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/5-set_GK_flow_as.png)
 
 
 ## 4.5. Adding an event listener 
@@ -173,7 +173,7 @@ GuardianKey also monitors the failed login attempts. To implement it in KeyCloak
 
 In KeyCloak, go to `Events`, tab `Config`, and include the `guardiankey-event-listener` in the "Event Listeners" field (img below).
 
-![Adding the GuardianKey event listener](https://raw.githubusercontent.com/pauloangelo/guardiankey-plugin-keycloak/master/imgs/6-add_GK_event_listener.png)
+![Adding the GuardianKey event listener](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/6-add_GK_event_listener.png)
 
 # 5. Testing
 

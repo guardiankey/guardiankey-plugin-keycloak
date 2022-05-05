@@ -43,7 +43,7 @@ To deploy the extension, you must:
 1. Download and move the `guardiankey.jar` file to the `providers` directory of your Keycloak installation and running 'build', for example:
 
 ```
-$ wget https://github.com/guardiankey/guardiankey-plugin-keycloak/releases/tag/v0.9.3-beta
+$ wget https://github.com/guardiankey/guardiankey-plugin-keycloak/releases/download/v0.9.3-beta/guardiankey.jar
 $ cp guardiankey.jar /opt/keycloak-18.0.0/providers/
 $ cd /opt/keycloak-18.0.0/
 $ ./bin/kc.sh build

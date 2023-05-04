@@ -4,30 +4,30 @@
 
 GuardianKey is a solution to protect systems against authentication attacks. It uses Machine Learning to analyze the user's behavior, threat intelligence, and psychometrics (or behavioral biometrics) and provides an attack risk in real-time. 
 
-The protected system (in the concrete case, KeyCloak, via this extension) sends the events via REST for the GuardianKey on each login attempt and can notify users or even block the high-risk events. Also, there is a panel that presents dashboards about login attempts. There are cloud and product versions. Also, there is a free service for small environments.
+The protected system (in the concrete case, KeyCloak/RH-SSO, via this extension) sends the events via REST for the GuardianKey on each login attempt and can notify users or even block the high-risk events. Also, there is a panel that presents dashboards about login attempts. There are cloud and product versions. Also, there is a free service for small environments.
 
 Beyond the security, the GuardianKey solution provides a good user experience, because the user is not required to provide extra information or to execute tasks during the login. It is a *painless high-security*.
 
 For more information, check https://guardiankey.io
 
-Below, we describe how you can use the KeyCloak's GuardianKey extension to access the GuardianKey engine in in cloud.
+Below, we describe how you can use the KeyCloak/RH-SSO's GuardianKey extension to access the GuardianKey engine in in cloud.
 
 A video for this tutorial is available at https://youtu.be/R5QFcH4bXuA 
 
 In **summary**, you should:
 
 1. Register an user at https://panel.guardiankey.io/auth/register
-2. Deploy the GuardianKey extension in your KeyCloak installation
+2. Deploy the GuardianKey extension in your KeyCloak/RH-SSO installation
 3. Configure the extension
 4. Check the events in the GuardianKey panel and protect your systems
 
 More details in the sequel.
 
-# 2. Before installing the KeyCloak extension
+# 2. Before installing the KeyCloak/RH-SSO extension
 
 ## 2.1. Registering in the GuardianKey's cloud service
 
-The KeyCloak's GuardianKey extension does not register automatically in the cloud services, 
+The KeyCloak/RH-SSO's GuardianKey extension does not register automatically in the cloud services, 
 you must do this and get the deployment information (cryptographic keys, etc).
 
 Just access the registering form at https://panel.guardiankey.io/auth/register and follow the instructions.
@@ -35,12 +35,12 @@ Just access the registering form at https://panel.guardiankey.io/auth/register a
 More details can be found at:
 https://guardiankey.io/panel-documentation/#accessing-for-the-first-time
 
-# 3. Deploying the extension in KeyCloak
+# 3. Deploying the extension in KeyCloak/RH-SSO
 
-## Instructions to deploying using Keycloak with Quarkus (most recents versions)
+## Instructions to deploying using Keycloak/RH-SSO with Quarkus (most recents versions)
 To deploy the extension, you must:
 
-1. Download and move the `guardiankey.jar` file to the `providers` directory of your Keycloak installation and running 'build', for example:
+1. Download and move the `guardiankey.jar` file to the `providers` directory of your Keycloak/RH-SSO installation and running 'build', for example:
 
 ```
 $ wget https://github.com/guardiankey/guardiankey-plugin-keycloak/releases/download/v0.9.3-beta/guardiankey.jar
@@ -49,7 +49,7 @@ $ cd /opt/keycloak-18.0.0/
 $ ./bin/kc.sh build
 ```
 
-2. Copy the e-mail template to your Keycloak theme, for example:
+2. Copy the e-mail template to your Keycloak/RH-SSO theme, for example:
 
 ```
 $ cd /opt/keycloak-18.0.0
@@ -62,14 +62,14 @@ $ cd /opt/keycloak-18.0.0/themes/custom/email
 $ wget https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/extra/guardiankey-security_alert.ftl
 
 ```
-3. Restart Keycloak service
+3. Restart Keycloak/RH-SSO service
 
 (go to item 4)
 
-## Instructions to deploying using Keycloak with WildFly (old versions)
+## Instructions to deploying using Keycloak/RH-SSO with WildFly (old versions)
 To deploy the extension, you must:
 
-1. Download and move the `guardiankey.jar` file to the `deployments` directory of your KeyCloak installation, for example:
+1. Download and move the `guardiankey.jar` file to the `deployments` directory of your KeyCloak/RH-SSO installation, for example:
 
 ```
 $ wget https://github.com/guardiankey/guardiankey-plugin-keycloak/releases/download/v0.9.1-beta/guardiankey.jar
@@ -106,12 +106,12 @@ In this case, you can check its contents to have a clue about the problem.
 ## 4.1. E-mail configuration in the Realm
 
 To enable GuardianKey to notify your users about suspicious authentication attempts, 
-you have to configure the e-mail sending in your KeyCloak instance. 
-Probably, you already did this in order to use KeyCloak. 
-If no, in KeyCloak admin interface, go to "Realm settings", e-mail tab, and provide an SMTP server for e-mail sending.
+you have to configure the e-mail sending in your KeyCloak/RH-SSO instance. 
+Probably, you already did this in order to use KeyCloak/RH-SSO. 
+If no, in KeyCloak/RH-SSO admin interface, go to "Realm settings", e-mail tab, and provide an SMTP server for e-mail sending.
 For example, like in the screenshot presented below.
 
-![Configuring the e-mail settings in KeyCloak](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/1-email.png)
+![Configuring the e-mail settings in KeyCloak/RH-SSO](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/1-email.png)
 
 ### 4.1.2 - (just newer versions) Enable e-mail in Realm settings -> Themes, select "custom" theme.
 
@@ -119,10 +119,10 @@ For example, like in the screenshot presented below.
 ## 4.2. Creating a browser flow
 
 Currently, GuardianKey extension supports just Browser flows.
-The built-in Browser flow provided by KeyCloak cannot be modified. 
+The built-in Browser flow provided by KeyCloak/RH-SSO cannot be modified. 
 So, you should copy this Browser flow to include the `GuardianKey Authenticator provider` in a new flow.
 
-In KeyCloak, go to Authentication. In the tab `Flows`, select the `Browser` flow, 
+In KeyCloak/RH-SSO, go to Authentication. In the tab `Flows`, select the `Browser` flow, 
 click in the button `copy`, provide a new name, and confirm. 
 Screen presented in the image below.
 
@@ -161,7 +161,7 @@ The other fields are described below.
 ## 4.4. Setting the GuardianKey flow as the Browser flow
 
 You must set the GuardianKey flow as the `Browser flow` for your realm. 
-In KeyCloak, go to Authentication and tab `Bindings`. Set the created flow for GuardianKey as
+In KeyCloak/RH-SSO, go to Authentication and tab `Bindings`. Set the created flow for GuardianKey as
 the `Browser flow` and save. See image below.
 
 ![Setting the GuardianKey flow as the Browser flow](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/5-set_GK_flow_as.png)
@@ -169,15 +169,15 @@ the `Browser flow` and save. See image below.
 
 ## 4.5. Adding an event listener 
 
-GuardianKey also monitors the failed login attempts. To implement it in KeyCloak, it is needed to add an event listener.
+GuardianKey also monitors the failed login attempts. To implement it in KeyCloak/RH-SSO, it is needed to add an event listener.
 
-In KeyCloak, go to `Events`, tab `Config`, and include the `guardiankey-event-listener` in the "Event Listeners" field (img below).
+In KeyCloak/RH-SSO, go to `Events`, tab `Config`, and include the `guardiankey-event-listener` in the "Event Listeners" field (img below).
 
 ![Adding the GuardianKey event listener](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/6-add_GK_event_listener.png)
 
 # 5. Testing
 
-Finally, you can check if it's running. Just authenticate in a system that uses the KeyCloak realm and check if the event appears in the
+Finally, you can check if it's running. Just authenticate in a system that uses the KeyCloak/RH-SSO realm and check if the event appears in the
 GuardianKey's panel.
 
 # 6. Getting help

@@ -43,7 +43,7 @@
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-services</artifactId>
 			<scope>provided</scope>
-			<version>18.0.0</version>
+			<version>21.1.2</version>
 		</dependency>
 
 		<dependency>

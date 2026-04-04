@@ -1,0 +1,10 @@
+services:
+  keycloak:
+    build: .
+    container_name: keycloak-gk
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"
+    command: start-dev

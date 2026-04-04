@@ -69,7 +69,8 @@ public class GKTincAuthenticatorUsernamePasswordForm extends AbstractUsernameFor
         } catch (Exception e) {
             System.out.println("GKTincAuthenticatorUsernamePasswordForm.authenticate: error setting notes, bypassing GKTinc. " + e.getMessage());
         }
-        //super.authenticate(context);
+        Response challenge = context.form().createLoginUsernamePassword();
+        context.challenge(challenge);
     }
 
     public static String getOnce(AuthenticationFlowContext context) {
@@ -209,7 +210,11 @@ public class GKTincAuthenticatorUsernamePasswordForm extends AbstractUsernameFor
             return;
         }
 
-        context.success();
+        // Validate username + password (inherited from AbstractUsernameFormAuthenticator)
+        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+        if (validateUserAndPassword(context, formData)) {
+            context.success();
+        }
     }
 
     private String getHeader(jakarta.ws.rs.core.HttpHeaders headers, String name) {
@@ -223,7 +228,7 @@ public class GKTincAuthenticatorUsernamePasswordForm extends AbstractUsernameFor
 
     @Override
     public boolean requiresUser() {
-       return true;
+       return false;
     }
 
     @Override

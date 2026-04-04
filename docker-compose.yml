@@ -8,7 +8,12 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_SPI_LOGIN__PROVIDER_DEFAULT: gktinc-freemarker
       KC_SPI_LOGIN_PROVIDER: gktinc-freemarker
+    volumes:
+      - keycloak-data:/opt/keycloak/data
     ports:
       - "8180:8080"
     command: 
-        start-dev --spi-login--provider-default=gktinc-freemarker  --spi-login-provider=gktinc-freemarker --spi-login-custom-login-provider-enabled=true  --spi-login-freemarker-enabled=false 
+        start-dev --spi-login--provider-default=gktinc-freemarker  --spi-login-provider=gktinc-freemarker --spi-login-custom-login-provider-enabled=true  --spi-login-freemarker-enabled=false
+
+volumes:
+  keycloak-data:

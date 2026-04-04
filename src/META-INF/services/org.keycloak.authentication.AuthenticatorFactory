@@ -1,1 +1,2 @@
 io.guardiankey.keycloak.GuardianKeyAuthenticatorFactory
+io.guardiankey.keycloak.GKTincAuthenticatorFactory

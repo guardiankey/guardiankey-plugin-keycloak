@@ -6,14 +6,13 @@ import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
-import org.keycloak.authentication.ConfigurableAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory, ConfigurableAuthenticatorFactory {
+public class GuardianKeyAuthenticatorFactory implements AuthenticatorFactory {
 
 
     public static final String PROVIDER_ID = "guardiankey-authenticator";

@@ -3,18 +3,15 @@ package io.guardiankey.keycloak;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
-import org.keycloak.authentication.Authenticator;
+import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
 import org.keycloak.models.AuthenticatorConfigModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
 
-public class GKTincAuthenticator implements Authenticator {
+public class GKTincAuthenticatorUsernamePasswordForm extends UsernamePasswordForm {
 
     public static final GKTincAPI GKAPI = new GKTincAPI();
 
@@ -25,6 +22,9 @@ public class GKTincAuthenticator implements Authenticator {
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
+
+        
+
         try {
             AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
             if (configModel == null) { context.success(); return; }
@@ -80,6 +80,8 @@ public class GKTincAuthenticator implements Authenticator {
             .setAttribute("gktincUsername", username)
             .createForm("gktinc-challenge.ftl");
         context.challenge(challenge);
+        // Não chamar super.authenticate() aqui: o desafio já foi emitido
+        // e o fluxo fica suspenso até action() ser invocado no submit do form.
     }
 
     @Override
@@ -114,7 +116,7 @@ public class GKTincAuthenticator implements Authenticator {
 
         String userAgent = "", secChUa = "", secChUaMobile = "", secChUaPlatform = "";
         try {
-            javax.ws.rs.core.HttpHeaders headers = context.getSession().getContext().getRequestHeaders();
+            jakarta.ws.rs.core.HttpHeaders headers = context.getSession().getContext().getRequestHeaders();
             userAgent      = getHeader(headers, "User-Agent");
             secChUa        = getHeader(headers, "Sec-CH-UA");
             secChUaMobile  = getHeader(headers, "Sec-CH-UA-Mobile");
@@ -138,7 +140,7 @@ public class GKTincAuthenticator implements Authenticator {
         context.success();
     }
 
-    private String getHeader(javax.ws.rs.core.HttpHeaders headers, String name) {
+    private String getHeader(jakarta.ws.rs.core.HttpHeaders headers, String name) {
         try {
             List<String> values = headers.getRequestHeader(name);
             return (values != null && !values.isEmpty()) ? values.get(0) : "";
@@ -147,15 +149,4 @@ public class GKTincAuthenticator implements Authenticator {
         }
     }
 
-    @Override
-    public boolean requiresUser() { return true; }
-
-    @Override
-    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) { return true; }
-
-    @Override
-    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) { }
-
-    @Override
-    public void close() { }
 }

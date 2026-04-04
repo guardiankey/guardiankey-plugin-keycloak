@@ -1,6 +1,8 @@
 package io.guardiankey.keycloak;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,8 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -27,8 +33,6 @@ import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.theme.FreeMarkerException;
-import org.keycloak.theme.FreeMarkerUtil;
 import org.keycloak.theme.Theme;
 
 
@@ -123,7 +127,7 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 		
 		String datetime = "recently";
         try {
-	    	Date dateFromTime = new Date( (new Long(checkReturn.get("generatedTime"))) *1000L );
+	    	Date dateFromTime = new Date( Long.parseLong(checkReturn.get("generatedTime")) *1000L );
 	    	DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 	    	datetime = dateFormatter.format(dateFromTime)+" (UTC)";
 		} catch (Exception e) {	}
@@ -139,7 +143,6 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
         	
         	Theme theme = session.theme().getTheme(Theme.Type.EMAIL);
         	
-        	FreeMarkerUtil freeMarker = new FreeMarkerUtil();
         	String templateName = "guardiankey-security_alert.ftl";
         	
         	Map<String, Object> attributes = new HashMap<>();
@@ -156,11 +159,22 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
         	attributes.put("EVENTID",   eventId);
         	attributes.put("EVENTTOKEN",token);
         	attributes.put("SYSTEM_URL", systemURL);
-        	String htmlBody = freeMarker.processTemplate(attributes, templateName, theme);
+        	String htmlBody = processEmailTemplate(theme, templateName, attributes);
 			emailSender.send(configSMTP, user, subject, textBody, htmlBody);
 		} catch (EmailException e) { System.out.print("Failed to send e-mail."); 
 		} catch (IOException e) { System.out.print("Failed to access theme files for sending e-mail.");
-		} catch (FreeMarkerException e) { System.out.print("Failed to process the e-mail template. Is there a syntax error in your template?");
+		} catch (Exception e) { System.out.print("Failed to process the e-mail template. Is there a syntax error in your template?");
+		}
+	}
+
+	private String processEmailTemplate(Theme theme, String templateName, Map<String, Object> attributes) throws Exception {
+		try (InputStreamReader reader = new InputStreamReader(theme.getTemplate(templateName).openStream(), java.nio.charset.StandardCharsets.UTF_8)) {
+			Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+			cfg.setDefaultEncoding("UTF-8");
+			Template template = new Template(templateName, reader, cfg);
+			StringWriter out = new StringWriter();
+			template.process(attributes, out);
+			return out.toString();
 		}
 	}
 
@@ -225,7 +239,7 @@ public class GuardianKeyAuthenticator implements Authenticator, EventListenerPro
 
 	private AuthenticatorConfigModel getConfig(RealmModel realm, String flowId, String providerId) {
 	    AuthenticatorConfigModel configModel = null;
-	    List<AuthenticationExecutionModel> laem = realm.getAuthenticationExecutions(flowId);
+	    List<AuthenticationExecutionModel> laem = realm.getAuthenticationExecutionsStream(flowId).collect(Collectors.toList());
 	    for (AuthenticationExecutionModel aem : laem) {
 	        if (aem.isAuthenticatorFlow()) {
 	            configModel = getConfig(realm, aem.getFlowId(), providerId);

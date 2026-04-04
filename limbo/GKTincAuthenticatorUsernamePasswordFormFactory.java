@@ -5,18 +5,17 @@ import java.util.List;
 
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.AuthenticatorFactory;
-import org.keycloak.authentication.ConfigurableAuthenticatorFactory;
+import org.keycloak.authentication.authenticators.browser.UsernamePasswordFormFactory;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class GKTincAuthenticatorFactory implements AuthenticatorFactory, ConfigurableAuthenticatorFactory {
+public class GKTincAuthenticatorUsernamePasswordFormFactory extends UsernamePasswordFormFactory {
 
     public static final String PROVIDER_ID = "gktinc-authenticator";
-    private static final GKTincAuthenticator SINGLETON = new GKTincAuthenticator();
+    private static final GKTincAuthenticatorUsernamePasswordForm SINGLETON = new GKTincAuthenticatorUsernamePasswordForm();
     private static final AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = {
         AuthenticationExecutionModel.Requirement.REQUIRED,
         AuthenticationExecutionModel.Requirement.DISABLED

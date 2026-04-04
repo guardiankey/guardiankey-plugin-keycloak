@@ -175,12 +175,88 @@ In KeyCloak/RH-SSO, go to `Events`, tab `Config`, and include the `guardiankey-e
 
 ![Adding the GuardianKey event listener](https://raw.githubusercontent.com/guardiankey/guardiankey-plugin-keycloak/master/imgs/6-add_GK_event_listener.png)
 
-# 5. Testing
+# 5. Activating GKTinc
+
+GKTinc is the GuardianKey Transparent Intelligent CAPTCHA — a behavioral bot-detection layer that adds a dynamic challenge
+to the login form without requiring user interaction in low-risk scenarios.
+
+After deploying the JAR, two extra steps are needed to activate GKTinc:
+
+## 5.1. Activating the GKTinc Authenticator in the Browser flow
+
+In the Keycloak admin console, go to **Authentication → Flows**, select your custom browser flow,
+click **Add execution**, and choose the **GKTinc Authenticator** provider.
+Set it to **REQUIRED** and place it **before** the existing password step.
+
+## 5.2. Activating the GKTinc LoginFormsProvider
+
+The `GKTincLoginFormsProvider` must be set as the default Keycloak login forms renderer so that
+GKTinc attributes (challenge script, build version, etc.) are automatically injected into every
+FreeMarker template.
+
+**Quarkus-based Keycloak (version 17+):**
+
+Option A — environment variable:
+```
+KC_SPI_LOGIN_DEFAULT_PROVIDER=gktinc-freemarker
+```
+
+Option B — `keycloak.conf`:
+```
+spi-login-default-provider=gktinc-freemarker
+```
+
+After changing the configuration, rebuild and restart Keycloak:
+```
+$ ./bin/kc.sh build
+$ ./bin/kc.sh start
+```
+
+**WildFly-based Keycloak (old versions):**
+
+Add the following block to `standalone.xml` inside the `keycloak-server` subsystem:
+```xml
+<spi name="login">
+    <default-provider>gktinc-freemarker</default-provider>
+</spi>
+```
+
+Restart the WildFly service after the change.
+
+## 5.3. Using GKTinc attributes in FreeMarker templates
+
+Once the provider is active, the following attributes are available in every `.ftl` template:
+
+| Attribute | Description |
+|---|---|
+| `${customMessage}` | Custom message injected by GKTinc (`"Protegido por GKTinc"`) |
+| `${buildVersion}` | Plugin build version |
+| `${environment}` | Deployment environment (`"production"`) |
+| `${realmDisplayName}` | Display name of the current realm |
+| `${realmName}` | Internal name of the current realm |
+| `${currentTimestamp?c}` | Current Unix timestamp in seconds |
+
+Example usage in a custom `.ftl` template:
+```
+<p>${customMessage} — ${realmDisplayName}</p>
+<small>v${buildVersion} | ${currentTimestamp?c}</small>
+```
+
+The `gktinc-challenge.ftl` template also receives two additional attributes set by the authenticator:
+
+| Attribute | Description |
+|---|---|
+| `${gktincConfig}` | JavaScript configuration blob for the GKTinc client-side library |
+| `${gktincUsername}` | Username pre-filled when available |
+
+---
+
+# 6. Testing
 
 Finally, you can check if it's running. Just authenticate in a system that uses the KeyCloak/RH-SSO realm and check if the event appears in the
 GuardianKey's panel.
 
-# 6. Getting help
+# 7. Getting help
 
 If you have troubles, you can find help in the links below. You can also send an e-mail to contact@guardiankey.io.
 

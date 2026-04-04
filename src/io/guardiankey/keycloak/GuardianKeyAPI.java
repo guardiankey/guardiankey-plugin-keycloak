@@ -50,7 +50,7 @@ public class GuardianKeyAPI {
 	private String orgId ="";
 	private String service ="KeyCloak";
 	private String agentId ="KeyCloakServer";
-	private Boolean reverse = new Boolean(true);
+	private Boolean reverse = Boolean.TRUE;
 
 	public void setConfig(Map<String,String> config) {
 		if(config==null)
@@ -67,7 +67,7 @@ public class GuardianKeyAPI {
 		if(config.get("guardiankey.agentid")!=null)
 			this.agentId     = config.get("guardiankey.agentid");
 		if(config.get("guardiankey.reverse")!=null)
-			this.reverse     = (config.get("guardiankey.reverse").contentEquals("true"))? new Boolean(true) : new Boolean(false) ;
+			this.reverse     = (config.get("guardiankey.reverse").contentEquals("true"))? Boolean.TRUE : Boolean.FALSE ;
 		if(config.get("guardiankey.key")!=null)
 			this.key         = Base64.getDecoder().decode(config.get("guardiankey.key"));
 		if(config.get("guardiankey.iv")!=null)

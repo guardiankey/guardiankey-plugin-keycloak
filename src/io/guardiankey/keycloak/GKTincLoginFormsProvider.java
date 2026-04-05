@@ -52,6 +52,8 @@ public class GKTincLoginFormsProvider extends FreeMarkerLoginFormsProvider {
      */
     public GKTincLoginFormsProvider(KeycloakSession session) {
         super(session);
+        // print a log to verify that the constructor is called and the session is available
+        System.out.println("GKTincLoginFormsProvider constructor called. KeycloakSession is " + (session != null ? "available" : "null") + ".");
         this.kcSession = session;
     }
 

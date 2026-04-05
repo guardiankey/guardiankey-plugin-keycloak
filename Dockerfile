@@ -31,6 +31,7 @@ FROM quay.io/keycloak/keycloak:26.2.5
 COPY --from=builder /build/target/guardiankey-keycloak-plugin-*.jar /opt/keycloak/providers/
 COPY --from=patcher /themes/ /opt/keycloak/themes/
 
-RUN /opt/keycloak/bin/kc.sh build --spi-login--provider-default=gktinc-freemarker \
-     --spi-login-provider=gktinc-freemarker --spi-login-custom-login-provider-enabled=true \
-     --spi-login-freemarker-enabled=false 
+# RUN /opt/keycloak/bin/kc.sh build --spi-login--provider-default=gktinc-freemarker \
+#      --spi-login-provider=gktinc-freemarker --spi-login-custom-login-provider-enabled=true \
+#      --spi-login-freemarker-enabled=false 
+RUN /opt/keycloak/bin/kc.sh build 

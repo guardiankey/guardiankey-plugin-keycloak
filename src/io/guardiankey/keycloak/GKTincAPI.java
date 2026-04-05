@@ -88,8 +88,8 @@ public class GKTincAPI {
                 return null;
             }
             HttpEntity entity = response.getEntity();
-            if (verbose) System.out.println("GKTincAPI GET response: " + EntityUtils.toString(entity, StandardCharsets.UTF_8));
             String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+            if (verbose) System.out.println("GKTincAPI GET response: " + json);
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(json, Map.class);
         } catch (Exception e) {
@@ -111,8 +111,8 @@ public class GKTincAPI {
                 return null;
             }
             HttpEntity entity = response.getEntity();
-            if (verbose) System.out.println("GKTincAPI POST response: " + EntityUtils.toString(entity, StandardCharsets.UTF_8));
             String json = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+            if (verbose) System.out.println("GKTincAPI POST response: " + json);
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(json, Map.class);
         } catch (Exception e) {

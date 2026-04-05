@@ -8,13 +8,9 @@ import jakarta.ws.rs.core.Response;
 
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
-// import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
 import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
-// import org.keycloak.models.KeycloakSession;
-// import org.keycloak.models.RealmModel;
-// import org.keycloak.models.UserModel;
 public class GKTincAuthenticator extends UsernamePasswordForm {
 
     protected static final GKTincAPI GKAPI = new GKTincAPI();

@@ -125,12 +125,7 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         String gktincSolution = formData.getFirst("gktinc_solution");
-        String username = ""; //formData.getFirst("username");
-        //String username = "";
-        // try {
-        //     if (context.getUser() != null && context.getUser().getUsername() != null)
-        //         username = context.getUser().getUsername();
-        // } catch (Exception e) { }
+        String username = formData.getFirst("username");
         String once        = getOnce(context);
         String clientIp    = getClientIP(context);
         String url         = getUrl(context);
@@ -140,10 +135,6 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
         if (useIpReputation) {
             challengeLevel = -1;
         }
-        // try {
-        //     String cl = context.getAuthenticationSession().getAuthNote(AUTH_NOTE_CHALLENGE_LEVEL);
-        //     if (cl != null) challengeLevel = Integer.parseInt(cl);
-        // } catch (NumberFormatException e) { }
 
         int formPayloadSize = 0;
         try {
@@ -270,11 +261,10 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
             String jsConfig = GKAPI.getJavascriptConfig(
                 challengeLevelResult, ipReputation, preEnforceBlock, clientIp, url, salt, once);
             String js =
-                "<script src='https://guardiankey.io/js/gktinc-setup-latest.js?v=9'></script>" +
+                "<script src='https://guardiankey.io/js/gktinc-setup-latest.js?v=20260405'></script>" +
                 "<script>" + jsConfig + "</script>" +
                 "<script>" +
-                   // "var form_input_element = document.getElementById('username');" +
-                    "var form_input_element = null;" +
+                    "var form_input_element = 'username';" +
                     "var form_element = null;" +
                     "gktinc_init(gktinc_config, form_element, form_input_element, " + verbose + ");" +
                 "</script>";

@@ -21,7 +21,7 @@ RUN THEMES_JAR=$(ls /kc-lib/org.keycloak.keycloak-themes-*.jar | grep -v vendor 
     (cd /tmp/jar-extract && jar xf "${THEMES_JAR}" theme/base/login/template.ftl) && \
     mkdir -p /themes/custom/login && \
     cp /tmp/jar-extract/theme/base/login/template.ftl /themes/custom/login/template.ftl && \
-    sed -i 's|</head>|<#if gktinc_javascript??>${gktinc_javascript?no_esc}</#if>\n</head>|' \
+    sed -i 's|</body>|<#if gktinc_javascript??>${gktinc_javascript?no_esc}</#if>\n</body>|' \
         /themes/custom/login/template.ftl && \
     echo "Patch applied."
 
@@ -31,7 +31,4 @@ FROM quay.io/keycloak/keycloak:26.2.5
 COPY --from=builder /build/target/guardiankey-keycloak-plugin-*.jar /opt/keycloak/providers/
 COPY --from=patcher /themes/ /opt/keycloak/themes/
 
-# RUN /opt/keycloak/bin/kc.sh build --spi-login--provider-default=gktinc-freemarker \
-#      --spi-login-provider=gktinc-freemarker --spi-login-custom-login-provider-enabled=true \
-#      --spi-login-freemarker-enabled=false 
 RUN /opt/keycloak/bin/kc.sh build 

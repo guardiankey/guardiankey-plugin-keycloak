@@ -11,6 +11,7 @@ import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
+import org.keycloak.models.utils.FormMessage;
 public class GKTincAuthenticator extends UsernamePasswordForm {
 
     protected static final GKTincAPI GKAPI = new GKTincAPI();
@@ -77,6 +78,22 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
         if (js != null) forms.setAttribute("gktinc_javascript", js);
         if (formData != null && !formData.isEmpty()) forms.setFormData(formData);
         return forms.createLoginUsernamePassword();
+    }
+
+    @Override
+    protected Response challenge(AuthenticationFlowContext context, String error, String field) {
+        LoginFormsProvider form = context.form()
+                .setExecution(context.getExecution().getId());
+        String js = context.getAuthenticationSession().getAuthNote(AUTH_NOTE_GKTINC_JS);
+        if (js != null) form.setAttribute("gktinc_javascript", js);
+        if (error != null) {
+            if (field != null) {
+                form.addError(new FormMessage(field, error));
+            } else {
+                form.setError(error);
+            }
+        }
+        return createLoginForm(form);
     }
 
     public static String getOnce(AuthenticationFlowContext context) {

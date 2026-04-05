@@ -108,7 +108,7 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         String gktincSolution = formData.getFirst("gktinc_solution");
-        String username = formData.getFirst("username");
+        String username = ""; //formData.getFirst("username");
         //String username = "";
         // try {
         //     if (context.getUser() != null && context.getUser().getUsername() != null)
@@ -205,7 +205,7 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
             userAgent, secChUa, secChUaMobile, secChUaPlatform, challengeLevel, null
         );
 
-        if (result != null && "BLOCK".equals(result.get("action"))) {
+        if (result != null && ( "BLOCK".equals(result.get("action")) || "INVALID".equals(result.get("action")) )) {
             Response response = context.form()
                 .setError("Access blocked by GKTinc. Suspicious activity detected.")
                 .createForm("error.ftl");
@@ -256,7 +256,8 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
                 "<script src='https://guardiankey.io/js/gktinc-setup-latest.js?v=9'></script>" +
                 "<script>" + jsConfig + "</script>" +
                 "<script>" +
-                    "var form_input_element = document.getElementById('username');" +
+                   // "var form_input_element = document.getElementById('username');" +
+                    "var form_input_element = null;" +
                     "var form_element = null;" +
                     "gktinc_init(gktinc_config, form_element, form_input_element, " + verbose + ");" +
                 "</script>";

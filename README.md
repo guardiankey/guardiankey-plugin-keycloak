@@ -188,6 +188,8 @@ In the Keycloak admin console, go to **Authentication → Flows**, select your c
 click **Add execution**, and choose the **GKTinc Authenticator** provider.
 Set it to **REQUIRED** and place it **before** the existing password step.
 
+You should configure the GKTinc Authenticator with the same deployment information used in the main GuardianKey Authenticator, so it can generate the correct challenge script for the login form.
+
 ## 5.2. Activating the GKTinc LoginFormsProvider
 
 The `GKTincLoginFormsProvider` must be set as the default Keycloak login forms renderer so that

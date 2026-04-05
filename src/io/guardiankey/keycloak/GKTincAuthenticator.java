@@ -1,6 +1,5 @@
 package io.guardiankey.keycloak;
 
-// import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,99 +8,79 @@ import jakarta.ws.rs.core.Response;
 
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
-import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
+// import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
+import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
-// import org.keycloak.sessions.AuthenticationSessionModel;
-
-//extends UsernamePasswordForm {
-public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
+// import org.keycloak.models.KeycloakSession;
+// import org.keycloak.models.RealmModel;
+// import org.keycloak.models.UserModel;
+public class GKTincAuthenticator extends UsernamePasswordForm {
 
     protected static final GKTincAPI GKAPI = new GKTincAPI();
 
-    // public static final String AUTH_NOTE_ONCE                    = "gktinc.once";
-    // public static final String AUTH_NOTE_CLIENT_IP               = "gktinc.client_ip";
-    // public static final String AUTH_NOTE_URL                     = "gktinc.url";
-    // public static final String AUTH_NOTE_ENABLED                 = "gktinc.enablegktinc";
-    // public static final String AUTH_NOTE_VERBOSE                 = "gktinc.verbose";
-    // public static final String AUTH_NOTE_APIURL                  = "gktinc.apiurl";
-    // public static final String AUTH_NOTE_USEIPREPUTATION         = "gktinc.useipreputation";
-    // public static final String AUTH_NOTE_AGENTID                 = "gktinc.agentid";
-    // public static final String AUTH_NOTE_APIKEY                  = "gktinc.apikey";
-    // public static final String AUTH_NOTE_PROTECTION_GROUP_HASHID = "gktinc.protectiongrouphashid";
-    // public static final String AUTH_NOTE_PREENFORCEBLOCK         = "gktinc.preenforceblock";
-
-    Map<String, String> config = null;
-
-    /**
-     * Writes every GKTinc config value that the LoginFormsProvider needs into the
-     * current auth session as notes. This must be called BEFORE {@code super.authenticate()}
-     * so the values are available when {@code injectGKTincAttributes()} runs at render time.
-     */
-    // protected void setNotes(AuthenticationFlowContext context, Map<String, String> config) {
-    //     AuthenticationSessionModel session = context.getAuthenticationSession();
-    //     session.setAuthNote(AUTH_NOTE_ONCE,                    getOnce(context));
-    //     session.setAuthNote(AUTH_NOTE_CLIENT_IP,               getClientIP(context));
-    //     session.setAuthNote(AUTH_NOTE_URL,                     getUrl(context));
-    //     session.setAuthNote(AUTH_NOTE_ENABLED,                 config.get("gktinc.enablegktinc"));
-    //     session.setAuthNote(AUTH_NOTE_VERBOSE,                 config.get("gktinc.verbose"));
-    //     session.setAuthNote(AUTH_NOTE_APIURL,                  config.get("gktinc.apiurl"));
-    //     session.setAuthNote(AUTH_NOTE_USEIPREPUTATION,         config.get("gktinc.useipreputation"));
-    //     session.setAuthNote(AUTH_NOTE_AGENTID,                 config.get("gktinc.agentid"));
-    //     session.setAuthNote(AUTH_NOTE_APIKEY,                  config.get("gktinc.apikey"));
-    //     session.setAuthNote(AUTH_NOTE_PROTECTION_GROUP_HASHID, config.get("gktinc.protectiongrouphashid"));
-    //     session.setAuthNote(AUTH_NOTE_PREENFORCEBLOCK,         config.get("gktinc.preenforceblock"));
-    // }
+    private static final String AUTH_NOTE_GKTINC_JS = "gktinc.javascript";
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
-        try {
-            AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
-            if (configModel == null) {
-                System.out.println("GKTincAuthenticator.authenticate: no config model, bypassing GKTinc.");
-                //super.authenticate(context);
-                context.success();
+        Map<String, String> localConfig = loadConfig(context);
+        if (localConfig == null) {
+            super.authenticate(context);
+            return;
+        }
+
+        boolean gkEnabled = "true".equals(localConfig.get("gktinc.enablegktinc"));
+        boolean verbose   = "true".equals(localConfig.get("gktinc.verbose"));
+
+        if (!gkEnabled) {
+            if (verbose) System.out.println("GKTincAuthenticator.authenticate: GKTinc disabled.");
+            super.authenticate(context);
+            return;
+        }
+
+        String clientIp         = getClientIP(context);
+        boolean ipReputation    = "true".equals(localConfig.get("gktinc.useipreputation"));
+        boolean preEnforceBlock = "true".equals(localConfig.get("gktinc.preenforceblock"));
+
+        if (verbose) System.out.println("GKTincAuthenticator.authenticate: enabled. IP: " + clientIp
+                + ", ipReputation: " + ipReputation + ", preEnforceBlock: " + preEnforceBlock);
+
+        Map<String, Object> challengeLevelResult = null;
+        if (ipReputation) {
+            challengeLevelResult = GKAPI.getChallengeLevel(context.getSession(), clientIp);
+            if (preEnforceBlock && challengeLevelResult != null
+                    && "BLOCK".equals(challengeLevelResult.get("action"))) {
+                Response response = context.form()
+                    .setError("Access blocked by GKTinc. Your origin is blocked by policy. If you think this is a mistake, please contact support.")
+                    .createForm("error.ftl");
+                context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, response);
                 return;
             }
-            System.out.println("GKTincAuthenticator.authenticate: config model found, setting notes for LoginFormsProvider.");
-            this.config = configModel.getConfig();
-            // Always set notes so the LoginFormsProvider can read them at render time,
-            // regardless of whether GKTinc is enabled or disabled.
-            //setNotes(context, this.config);
-        } catch (Exception e) {
-            System.out.println("GKTincAuthenticator.authenticate: error setting notes, bypassing GKTinc. " + e.getMessage());
         }
 
-        boolean gkEnabled = "true".equals(config.get("gktinc.enablegktinc"));
-        boolean verbose   = "true".equals(config.get("gktinc.verbose"));
-        String clientIp = getClientIP(context);
-        boolean ipReputation    = "true".equals(config.get("gktinc.useipreputation"));
-        boolean preEnforceBlock = "true".equals(config.get("gktinc.preenforceblock"));
+        GKAPI.setConfig(localConfig);
+        // Pre-compute JS and store in auth session so challenge() can inject it into
+        // the correct LoginFormsProvider instance (created inside super.authenticate).
+        String js = buildJavascript(context, localConfig, challengeLevelResult);
+        context.getAuthenticationSession().setAuthNote(AUTH_NOTE_GKTINC_JS, js);
+        if (verbose) System.out.println("GKTincAuthenticator.authenticate: JS stored in auth session.");
 
-        if(gkEnabled) {
-            if (verbose) System.out.println("GKTincAuthenticator.authenticate: GKTinc is enabled. Client IP: " + clientIp + ", IP Reputation: " + ipReputation + ", Pre-Enforce Block: " + preEnforceBlock);
-            Map<String, Object> challengeLevelResult = null;
-            if (ipReputation) {
-                challengeLevelResult = GKAPI.getChallengeLevel(context.getSession(), clientIp);
-                if(preEnforceBlock && challengeLevelResult != null) {
-                    if ("BLOCK".equals(challengeLevelResult.get("action")) && context != null) {
-                        Response response = context.form()
-                            .setError("Access blocked by GKTinc. Your origin is blocked by policy. If you think this is a mistake, please contact support.")
-                            .createForm("error.ftl");
-                        context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, response);
-                        return;
-                    }
-                }
-            }
-            LoginFormsProvider form = context.form();
-            form.setAttribute("gktinc_javascript", getJStoInjectGKTinc(context,challengeLevelResult));
-        } else {
-            if (verbose) System.out.println("GKTincAuthenticator.authenticate: GKTinc is disabled. This authenticator will allow all attempts.");
-        }
-         context.success();
+        super.authenticate(context);  // → calls our overridden challenge(context, formData)
+    }
+
+    /**
+     * Called by super.authenticate() (initial display) and by super.action() when
+     * re-challenging after login errors. Single point where LoginFormsProvider is
+     * created, so gktinc_javascript is guaranteed to reach the correct instance.
+     */
+    @Override
+    protected Response challenge(AuthenticationFlowContext context,
+                                 MultivaluedMap<String, String> formData) {
+        LoginFormsProvider forms = context.form();
+        String js = context.getAuthenticationSession().getAuthNote(AUTH_NOTE_GKTINC_JS);
+        if (js != null) forms.setAttribute("gktinc_javascript", js);
+        if (formData != null && !formData.isEmpty()) forms.setFormData(formData);
+        return forms.createLoginUsernamePassword();
     }
 
     public static String getOnce(AuthenticationFlowContext context) {
@@ -133,18 +112,14 @@ public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         String gktincSolution = formData.getFirst("gktinc_solution");
-        String username = "";
-        try {
-            if (context.getUser() != null && context.getUser().getUsername() != null)
-                username = context.getUser().getUsername();
-        } catch (Exception e) { }
+        String username = formData.getFirst("username");
+        //String username = "";
+        // try {
+        //     if (context.getUser() != null && context.getUser().getUsername() != null)
+        //         username = context.getUser().getUsername();
+        // } catch (Exception e) { }
         String once        = getOnce(context);
-        String clientIp = "";//   = context.getAuthenticationSession().getAuthNote(AUTH_NOTE_CLIENT_IP);
-
-
-        clientIp = getClientIP(context);
-
-
+        String clientIp    = getClientIP(context);
         String url         = getUrl(context);
         int challengeLevel = 2;
         
@@ -183,14 +158,16 @@ public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
 
     @Override
     public void action(AuthenticationFlowContext context) {
+
+        System.out.println("GKTincAuthenticator.action: started.");
         boolean verbose = true;
         Map<String,String> config = null;
         try {
             AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
             if (configModel == null) { 
                 if (verbose) System.out.println("GKTincAuthenticator.action: no config model, bypassing GKTinc.");
-                //super.action(context);
-                context.success();
+                //context.success();
+                super.action(context);
                 return; 
             }
             config = configModel.getConfig();
@@ -201,18 +178,17 @@ public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
                 GKAPI.setConfig(config);
             } else {
                 if (verbose) System.out.println("GKTincAuthenticator executing with GKTinc disabled. This authenticator will allow all attempts.");
-                //super.action(context);
-                context.success();
+                // context.success();
+                super.action(context);
                 return;
             }
         } catch (Exception e) {
             if(verbose) System.out.println("GKTincAuthenticator.action: error loading config, bypassing GKTinc. " + e.getMessage());
-            //super.action(context);
-            context.success();
+            //context.success();
+            super.action(context);
             return;
         }
         
-
         // if enabled, the API client will have already been configured by the factory based on the realm's configuration. If not enabled, this will be a no-op instance that allows all attempts.
         Object[] vars = getVars(context, config);
         String gktincSolution = (String) vars[0];
@@ -233,7 +209,7 @@ public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
             userAgent, secChUa, secChUaMobile, secChUaPlatform, challengeLevel, null
         );
 
-        if ("BLOCK".equals(result.get("action"))) {
+        if (result != null && "BLOCK".equals(result.get("action"))) {
             Response response = context.form()
                 .setError("Access blocked by GKTinc. Suspicious activity detected.")
                 .createForm("error.ftl");
@@ -241,7 +217,7 @@ public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
             return;
         }
 
-        context.success();
+        super.action(context);
     }
 
     private String getHeader(jakarta.ws.rs.core.HttpHeaders headers, String name) {
@@ -253,62 +229,46 @@ public class GKTincAuthenticator extends AbstractUsernameFormAuthenticator {
         }
     }
 
-    @Override
-    public boolean requiresUser() {
-       return false;
-    }
-
-    @Override
-    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
-        return true;
-    }
-
-    @Override
-    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
-        
-    }
-
-    private String getJStoInjectGKTinc(AuthenticationFlowContext context, Map<String, Object> challengeLevelResult) {
-        String gktinc_javascript = "<script>/* GKTinc disabled */</script>";
+    private Map<String, String> loadConfig(AuthenticationFlowContext context) {
         try {
-            if (context == null) {
-                return gktinc_javascript;
+            AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
+            if (configModel == null) {
+                System.out.println("GKTincAuthenticator: no config model, bypassing.");
+                return null;
             }
+            return configModel.getConfig();
+        } catch (Exception e) {
+            System.out.println("GKTincAuthenticator: error loading config: " + e.getMessage());
+            return null;
+        }
+    }
 
-            boolean gkEnabled = "true".equals(config.get("gktinc.enablegktinc"));
-            boolean verbose   = "true".equals(config.get("gktinc.verbose"));
-
-            if (!gkEnabled) {
-                if (verbose) System.out.println("GKTincAuthenticator: GKTinc is disabled.");
-                return gktinc_javascript;
-            }
-            // Read per-request values stored as auth notes by the authenticator.
+    private String buildJavascript(AuthenticationFlowContext context,
+                                   Map<String, String> cfg,
+                                   Map<String, Object> challengeLevelResult) {
+        try {
+            boolean ipReputation    = "true".equals(cfg.get("gktinc.useipreputation"));
+            boolean preEnforceBlock = "true".equals(cfg.get("gktinc.preenforceblock"));
+            boolean verbose         = "true".equals(cfg.get("gktinc.verbose"));
             String clientIp = getClientIP(context);
             String url      = getUrl(context);
             String once     = getOnce(context);
-            boolean ipReputation    = "true".equals(config.get("gktinc.useipreputation"));
-            boolean preEnforceBlock = "true".equals(config.get("gktinc.preenforceblock"));
-
-            GKAPI.setConfig(config);
-            String salt = GKAPI.getSalt();
-            String gktinc_config = GKAPI.getJavascriptConfig(
+            String salt     = GKAPI.getSalt();
+            String jsConfig = GKAPI.getJavascriptConfig(
                 challengeLevelResult, ipReputation, preEnforceBlock, clientIp, url, salt, once);
-
-            gktinc_javascript =
+            String js =
                 "<script src='https://guardiankey.io/js/gktinc-setup-latest.js?v=9'></script>" +
-                "<script>" + gktinc_config + "</script>" +
+                "<script>" + jsConfig + "</script>" +
                 "<script>" +
                     "var form_input_element = document.getElementById('username');" +
                     "var form_element = null;" +
                     "gktinc_init(gktinc_config, form_element, form_input_element, " + verbose + ");" +
                 "</script>";
-
-            if (verbose) System.out.println("GKTincAuthenticator: JavaScript injected.");
-
+            if (verbose) System.out.println("GKTincAuthenticator: JavaScript built.");
+            return js;
         } catch (Exception e) {
-            // Never let GKTinc errors break the login page.
-            System.out.println("GKTincAuthenticator.injectGKTincAttributes error: " + e.getMessage());
+            System.out.println("GKTincAuthenticator.buildJavascript error: " + e.getMessage());
+            return "<script>/* GKTinc error */</script>";
         }
-        return gktinc_javascript;
     }
 }

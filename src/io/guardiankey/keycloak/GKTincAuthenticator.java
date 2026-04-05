@@ -261,7 +261,7 @@ public class GKTincAuthenticator extends UsernamePasswordForm {
             String jsConfig = GKAPI.getJavascriptConfig(
                 challengeLevelResult, ipReputation, preEnforceBlock, clientIp, url, salt, once);
             String js =
-                "<script src='https://guardiankey.io/js/gktinc-setup-latest.js?v=20260405'></script>" +
+                "<script src='https://guardiankey.io/js/gktinc-setup-latest.js?v=2026040502'></script>" +
                 "<script>" + jsConfig + "</script>" +
                 "<script>" +
                     "var form_input_element = 'username';" +

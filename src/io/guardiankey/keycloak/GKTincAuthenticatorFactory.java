@@ -106,7 +106,7 @@ public class GKTincAuthenticatorFactory extends UsernamePasswordFormFactory {
     public String getId() { return PROVIDER_ID; }
 
     @Override
-    public String getDisplayType() { return "GKTinc Authenticator"; }
+    public String getDisplayType() { return "GuardianKey GKTinc Authenticator"; }
 
     @Override
     public String getReferenceCategory() { return "GKTinc"; }

@@ -1,1 +1,2 @@
 io.guardiankey.keycloak.GuardianKeyEventListenerFactory
+io.guardiankey.keycloak.GuardianKeyXEEventListenerFactory

@@ -72,12 +72,14 @@ if grep -q "${SENTINEL}" "${TARGET_FTL}"; then
     exit 0
 fi
 
-# The FreeMarker snippet renders the variable only when it is defined,
-# so it is safe to include in every page (non-GKTinc pages get an empty string).
-INJECT='<#if gktinc_javascript??>${gktinc_javascript}</#if>'
+# The FreeMarker snippets render only when the variable is defined, so it is
+# safe to include both in every page (non-GKTinc / non-XE pages get an empty
+# string for the missing one).
+INJECT_GKTINC='<#if gktinc_javascript??>${gktinc_javascript}</#if>'
+INJECT_GKXE='<#if gkxe_javascript??>${gkxe_javascript?no_esc}</#if>'
 
-# sed: insert the snippet on the line immediately before </head>
-sed -i "s|</head>|${INJECT}\n</head>|" "${TARGET_FTL}"
+# sed: insert both snippets on the line immediately before </head>
+sed -i "s|</head>|${INJECT_GKTINC}\n${INJECT_GKXE}\n</head>|" "${TARGET_FTL}"
 
 if grep -q "${SENTINEL}" "${TARGET_FTL}"; then
     echo "Patch applied successfully to ${TARGET_FTL}"

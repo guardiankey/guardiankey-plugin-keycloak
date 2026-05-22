@@ -21,7 +21,7 @@ RUN THEMES_JAR=$(ls /kc-lib/org.keycloak.keycloak-themes-*.jar | grep -v vendor 
     (cd /tmp/jar-extract && jar xf "${THEMES_JAR}" theme/base/login/template.ftl) && \
     mkdir -p /themes/custom/login && \
     cp /tmp/jar-extract/theme/base/login/template.ftl /themes/custom/login/template.ftl && \
-    sed -i 's|</body>|<#if gktinc_javascript??>${gktinc_javascript?no_esc}</#if>\n</body>|' \
+    sed -i 's|</body>|<#if gktinc_javascript??>${gktinc_javascript?no_esc}</#if>\n<#if gkxe_javascript??>${gkxe_javascript?no_esc}</#if>\n</body>|' \
         /themes/custom/login/template.ftl && \
     echo "Patch applied."
 
